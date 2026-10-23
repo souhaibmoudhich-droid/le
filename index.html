@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Day and Night</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0b1026; overflow: hidden; }
+    canvas { display: block; width: 100vw; height: 100vh; }
+    .hint {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      font: 14px system-ui, sans-serif; color: rgba(255,255,255,.7);
+      pointer-events: none; text-shadow: 0 1px 3px rgba(0,0,0,.6);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div class="hint">Hold to speed up time</div>
+  <script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+    let W, H, stars, mountains;
+    let time = 0.3;          // 0..1 is one full day; 0.25 = noon, 0.75 = midnight
+    let speed = 0.00025;
+
+    // Sky colours at key moments of the day: [time, top colour, bottom colour]
+    const sky = [
+      [0.00, [255, 140, 90],  [255, 210, 150]], // sunrise
+      [0.25, [80, 160, 235],  [190, 225, 255]], // noon
+      [0.50, [120, 60, 140],  [255, 120, 80]],  // sunset
+      [0.75, [8, 12, 35],     [25, 35, 80]],    // midnight
+      [1.00, [255, 140, 90],  [255, 210, 150]], // sunrise again
+    ];
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function mix(c1, c2, t) { return c1.map((v, i) => Math.round(lerp(v, c2[i], t))); }
+    function rgb(c, a = 1) { return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+
+    function skyColours(t) {
+      for (let i = 0; i < sky.length - 1; i++) {
+        const [t0, top0, bot0] = sky[i];
+        const [t1, top1, bot1] = sky[i + 1];
+        if (t >= t0 && t <= t1) {
+          const k = (t - t0) / (t1 - t0);
+          return [mix(top0, top1, k), mix(bot0, bot1, k)];
+        }
+      }
+      return [sky[0][1], sky[0][2]];
+    }
+
+    function makeRidge(baseY, roughness, colour) {
+      const pts = [];
+      let y = baseY;
+      for (let x = 0; x <= W + 20; x += 20) {
+        y += (Math.random() - 0.5) * roughness;
+        y = Math.max(baseY - roughness * 2, Math.min(baseY + roughness * 2, y));
+        pts.push([x, y]);
+      }
+      return { pts, colour };
+    }
+
+    function resize() {
+      W = canvas.width = innerWidth;
+      H = canvas.height = innerHeight;
+      stars = Array.from({ length: Math.round(W * H / 4000) }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H * 0.7,
+        r: Math.random() * 1.4 + 0.3,
+        phase: Math.random() * Math.PI * 2,
+      }));
+      mountains = [
+        makeRidge(H * 0.62, 40, [70, 80, 120]),
+        makeRidge(H * 0.72, 30, [45, 55, 90]),
+        makeRidge(H * 0.82, 20, [25, 32, 60]),
+      ];
+    }
+
+    const shootingStars = [];
+
+    function drawCelestial(angle, radius, colour, glow) {
+      // Sun and moon travel on a big arc across the sky
+      const cx = W / 2 + Math.cos(angle) * W * 0.45;
+      const cy = H * 0.75 - Math.sin(angle) * H * 0.6;
+      const g = ctx.createRadialGradient(cx, cy, radius * 0.5, cx, cy, radius * 4);
+      g.addColorStop(0, rgb(glow, 0.5));
+      g.addColorStop(1, rgb(glow, 0));
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx, cy, radius * 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = rgb(colour);
+      ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill();
+    }
+
+    function frame() {
+      time = (time + speed) % 1;
+      const [top, bottom] = skyColours(time);
+
+      // Sky
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, rgb(top));
+      g.addColorStop(1, rgb(bottom));
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+
+      // Night amount: 0 during the day, 1 at midnight
+      const night = Math.max(0, -Math.sin(time * Math.PI * 2));
+
+      // Twinkling stars
+      const now = performance.now() / 1000;
+      for (const s of stars) {
+        const a = night * (0.5 + 0.5 * Math.sin(now * 2 + s.phase));
+        if (a < 0.02) continue;
+        ctx.fillStyle = `rgba(255,255,255,${a})`;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+      }
+
+      // Shooting stars, only at night
+      if (night > 0.6 && Math.random() < 0.01) {
+        shootingStars.push({ x: Math.random() * W, y: Math.random() * H * 0.3, life: 1 });
+      }
+      for (let i = shootingStars.length - 1; i >= 0; i--) {
+        const s = shootingStars[i];
+        ctx.strokeStyle = `rgba(255,255,255,${s.life})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - 60, s.y - 25); ctx.stroke();
+        s.x += 12; s.y += 5; s.life -= 0.02;
+        if (s.life <= 0) shootingStars.splice(i, 1);
+      }
+
+      // Sun rises at time 0, moon half a day later
+      const sunAngle = time * Math.PI * 2;
+      drawCelestial(Math.PI - sunAngle, 40, [255, 230, 120], [255, 200, 80]);
+      drawCelestial(Math.PI - sunAngle - Math.PI, 28, [235, 235, 250], [180, 200, 255]);
+
+      // Mountains, darker at night
+      for (const m of mountains) {
+        ctx.fillStyle = rgb(mix(m.colour, [5, 8, 20], night * 0.6));
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        for (const [x, y] of m.pts) ctx.lineTo(x, y);
+        ctx.lineTo(W, H);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    canvas.addEventListener('pointerdown', () => { speed = 0.003; });
+    addEventListener('pointerup', () => { speed = 0.00025; });
+    addEventListener('resize', resize);
+    resize();
+    frame();
+  </script>
+</body>
+</html>
