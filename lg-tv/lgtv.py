@@ -256,7 +256,7 @@ class TV:
             except (OSError, ConnectionError, ssl.SSLError) as e:
                 errors.append(f"{port}: {e}")
         die(f"impossible de joindre la TV à {self.host} ({'; '.join(errors)}). "
-            "Vérifie qu'elle est allumée et que « LG Connect Apps » / « Allumer via Wi-Fi » est activé.")
+            "Vérifie qu'elle est allumée et que « LG Connect Apps » (« TV Mobile activée » sur les TV 2017-2019) est activé.")
 
     def register(self, wait_for_prompt=60):
         payload = {
@@ -484,10 +484,11 @@ def cmd_alleger(args):
                 json.dump(log, open(log_path, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
                 continue
         print(f"   Chemin : {r['chemin']}")
+        print(f"   TV 2017-2019 : {r['chemin_ancien']}")
         input("   Ouvre cet écran sur la TV puis appuie sur Entrée (capture AVANT)… ")
         before = take_capture(tv, r["id"] + "-avant", shots)
         print(f"   Action : {r['action']}")
-        answer = input("   Fait ? (O/n/q) ").strip().lower()
+        answer = input("   Fait ? (O/n = option absente ou gardée/q) ").strip().lower()
         if answer == "q":
             break
         done = answer not in ("n", "non")

@@ -1,7 +1,7 @@
 /* Accueil Zen : horloge, dock d'applis et fonds d'écran qui tournent.
    ES5 uniquement (anciens webOS = Chromium 38+). */
 (function () {
-  var config = { dock: [], rotateSeconds: 40, fadeSeconds: 2.5, idleSeconds: 15, slowZoom: true, clock24h: true };
+  var config = { dock: [], rotateSeconds: 40, fadeSeconds: 2.5, /* = durée du fondu dans style.css */ idleSeconds: 15, slowZoom: true, clock24h: true };
   var slides = [];   // { kind: "photo"|"scene", file, index, credit }
   var current = -1;
   var focus = 0;
@@ -194,7 +194,6 @@
   // ---------- démarrage ----------
   loadJSON("config.json", function (data) {
     if (data) for (var k in data) config[k] = data[k];
-    document.documentElement.style.setProperty("--fade", config.fadeSeconds + "s");
     tick();
     buildDock();
     wake();

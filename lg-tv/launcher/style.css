@@ -11,10 +11,10 @@ html, body {
 .slide {
   position: absolute; top: 0; right: 0; bottom: 0; left: 0; width: 1920px; height: 1080px;
   object-fit: cover; opacity: 0;
-  transition: opacity var(--fade, 2.5s) ease-in-out;
+  transition: opacity 2.5s ease-in-out;
 }
 .slide.show { opacity: 1; }
-.slide.zoom { transition: opacity var(--fade, 2.5s) ease-in-out, transform 60s linear; transform: scale(1); }
+.slide.zoom { transition: opacity 2.5s ease-in-out, transform 60s linear; transform: scale(1); }
 .slide.zoom.show { transform: scale(1.08); }
 
 /* Lisibilité de l'heure et du dock sur n'importe quelle photo */

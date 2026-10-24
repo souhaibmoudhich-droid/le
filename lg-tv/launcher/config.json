@@ -8,7 +8,6 @@
     { "id": "com.palm.app.settings", "title": "Réglages", "icon": "", "color": "#636366" }
   ],
   "rotateSeconds": 40,
-  "fadeSeconds": 2.5,
   "idleSeconds": 15,
   "slowZoom": true,
   "clock24h": true

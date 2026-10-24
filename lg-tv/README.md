@@ -84,8 +84,9 @@ l'appli Developer Mode.
 | Ruban d'applis | non | réordonne, sans rien supprimer |
 | DNS anti-pub (AdGuard) | oui, réseau | bloque les serveurs de pub LG |
 
-La liste complète avec les chemins de menu est dans [`reglages.py`](reglages.py). Les noms de menu
-correspondent à webOS 22 à 25 ; sur les modèles plus anciens ils sont proches mais rangés ailleurs.
+La liste complète avec les chemins de menu est dans [`reglages.py`](reglages.py), pour webOS 22 à 25
+et pour les TV 2017-2019 (webOS 3.5 à 4.5, menu « Général » avec icônes à gauche). Sur ces dernières,
+« LG Connect Apps » s'appelle **« TV Mobile activée »** et doit rester activé.
 
 ## L'Accueil Zen
 
