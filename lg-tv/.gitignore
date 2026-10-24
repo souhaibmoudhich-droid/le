@@ -1,0 +1,12 @@
+# Propres à ta TV (adresse, clé d'appairage, sauvegardes) : ne jamais publier
+tv.json
+sauvegardes/
+captures/
+dist/
+__pycache__/
+launcher/icons/*
+!launcher/icons/.gitkeep
+launcher/wallpapers/*.jpg
+launcher/wallpapers/*.jpeg
+launcher/wallpapers/*.png
+launcher/wallpapers/*.webp

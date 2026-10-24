@@ -1,0 +1,15 @@
+{
+  "dock": [
+    { "id": "", "title": "4K Player", "icon": "", "color": "#1f6feb" },
+    { "id": "", "title": "Smart IPTV", "icon": "", "color": "#7b3fe4" },
+    { "id": "youtube.leanback.v4", "title": "YouTube", "icon": "", "color": "#e5302a" },
+    { "id": "netflix", "title": "Netflix", "icon": "", "color": "#b20710" },
+    { "id": "", "title": "Rakuten TV", "icon": "", "color": "#bf0000" },
+    { "id": "com.palm.app.settings", "title": "Réglages", "icon": "", "color": "#636366" }
+  ],
+  "rotateSeconds": 40,
+  "fadeSeconds": 2.5,
+  "idleSeconds": 15,
+  "slowZoom": true,
+  "clock24h": true
+}
